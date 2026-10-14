@@ -63,6 +63,9 @@ export default function App() {
     duration: 0,
   }))
   const [muted, setMuted] = useState(START_MUTED)
+  // Video blown up to fill the screen (turned sideways, see settings.fullscreenRotation).
+  const [fullscreen, setFullscreen] = useState(false)
+  const [leftFullscreen, setLeftFullscreen] = useState(false) // plays the "turn back" animation
   const [offline, setOffline] = useState(false)
 
   const { order, pos, key, playing, paused, time } = state
@@ -121,7 +124,16 @@ export default function App() {
     [step],
   )
 
-  const handleEnded = useCallback(() => step(1), [step])
+  const toggleVideoFullscreen = useCallback(() => {
+    setFullscreen((on) => !on)
+    setLeftFullscreen(true)
+  }, [])
+
+  // When a video finishes, go back to the vertical layout for the next one.
+  const handleEnded = useCallback(() => {
+    setFullscreen(false)
+    step(1)
+  }, [step])
 
   // Watchdog: a video that never starts or freezes gets skipped (pausing doesn't count).
   useEffect(() => {
@@ -149,18 +161,21 @@ export default function App() {
     return () => clearTimeout(timer)
   }, [offline])
 
-  // Keyboard for setup: ← → change video, space pause, M sound, F fullscreen.
+  // Keyboard for setup: ← → change video, space pause, M sound, V video full screen,
+  // Esc leave it, F browser full screen.
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === 'ArrowRight') step(1)
       else if (e.key === 'ArrowLeft') step(-1)
       else if (e.key === ' ') togglePause()
       else if (e.key === 'm' || e.key === 'M') toggleMute()
+      else if (e.key === 'v' || e.key === 'V') toggleVideoFullscreen()
+      else if (e.key === 'Escape') setFullscreen(false)
       else if (e.key === 'f' || e.key === 'F') toggleFullscreen()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [step, togglePause, toggleMute])
+  }, [step, togglePause, toggleMute, toggleVideoFullscreen])
 
   // Hide the mouse pointer when it isn't moving.
   useEffect(() => {
@@ -196,29 +211,39 @@ export default function App() {
             <Clock />
           </header>
 
-          <section className="player">
-            <YouTubePlayer
-              videoId={video.youtubeId}
-              start={video.start ?? 0}
-              playKey={key}
-              muted={muted}
-              paused={paused}
-              onPlaying={handlePlaying}
-              onEnded={handleEnded}
-              onFail={handleFail}
-              onProgress={handleProgress}
-              onAutoMuted={handleAutoMuted}
-            />
-            <Thumb key={key} id={video.youtubeId} hd className={`poster${playing ? ' is-hidden' : ''}`} />
-            <PlayerControls
-              paused={paused}
-              muted={muted}
-              onTogglePause={togglePause}
-              onToggleMute={toggleMute}
-              onPrev={() => step(-1)}
-              onNext={() => step(1)}
-            />
-          </section>
+          {fullscreen && <div className="fs-backdrop" />}
+
+          <div className="player-slot">
+            <section
+              className={`player${fullscreen ? ' is-fullscreen' : leftFullscreen ? ' is-returning' : ''}${settings.fullscreenRotation ? '' : ' no-rotate'}`}
+              style={{ '--fs-rotate': `${settings.fullscreenRotation || 0}deg` }}
+            >
+              <YouTubePlayer
+                videoId={video.youtubeId}
+                start={video.start ?? 0}
+                playKey={key}
+                muted={muted}
+                paused={paused}
+                onPlaying={handlePlaying}
+                onEnded={handleEnded}
+                onFail={handleFail}
+                onProgress={handleProgress}
+                onAutoMuted={handleAutoMuted}
+              />
+              <Thumb key={key} id={video.youtubeId} hd className={`poster${playing ? ' is-hidden' : ''}`} />
+              <PlayerControls
+                paused={paused}
+                muted={muted}
+                onTogglePause={togglePause}
+                onToggleMute={toggleMute}
+                fullscreen={fullscreen}
+                onToggleFullscreen={toggleVideoFullscreen}
+                onPrev={() => step(-1)}
+                onNext={() => step(1)}
+              />
+              <div className="fs-progress" style={{ transform: `scaleX(${fraction})` }} />
+            </section>
+          </div>
 
           <div className="progress">
             <div className="progress-track">

@@ -3,8 +3,8 @@ import { useEffect, useRef, useState } from 'react'
 const HIDE_AFTER_MS = 4000
 
 // Touch controls over the video. A tap shows ⏮ ⏯ ⏭ for a few seconds (they stay
-// while paused); the sound button is always visible.
-export default function PlayerControls({ paused, muted, onTogglePause, onToggleMute, onPrev, onNext }) {
+// while paused); the full-screen and sound buttons are always visible.
+export default function PlayerControls({ paused, muted, fullscreen, onTogglePause, onToggleMute, onToggleFullscreen, onPrev, onNext }) {
   const [visible, setVisible] = useState(false)
   const hideTimer = useRef()
 
@@ -46,15 +46,29 @@ export default function PlayerControls({ paused, muted, onTogglePause, onToggleM
           <Icon d="m5 4 10 8-10 8V4zM19 5v14" filled />
         </button>
       </div>
-      <button
-        type="button"
-        className={`ctrl ctrl-sound${muted ? ' is-muted' : ''}`}
-        aria-label={muted ? 'Activar sonido' : 'Silenciar'}
-        onClick={press(onToggleMute)}
-      >
-        {muted ? <Icon d="M11 5 6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6" /> : <Icon d="M11 5 6 9H2v6h4l5 4V5zM15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14" />}
-        {muted && <span>Activar sonido</span>}
-      </button>
+      <div className="controls-corner">
+        <button
+          type="button"
+          className="ctrl ctrl-corner"
+          aria-label={fullscreen ? 'Salir de pantalla completa' : 'Pantalla completa'}
+          onClick={press(onToggleFullscreen)}
+        >
+          {fullscreen ? <Icon d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5" /> : <Icon d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />}
+        </button>
+        <button
+          type="button"
+          className={`ctrl ctrl-corner ctrl-sound${muted ? ' is-muted' : ''}`}
+          aria-label={muted ? 'Activar sonido' : 'Silenciar'}
+          onClick={press(onToggleMute)}
+        >
+          {muted ? (
+            <Icon d="M11 5 6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6" />
+          ) : (
+            <Icon d="M11 5 6 9H2v6h4l5 4V5zM15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14" />
+          )}
+          {muted && <span>Activar sonido</span>}
+        </button>
+      </div>
     </div>
   )
 }

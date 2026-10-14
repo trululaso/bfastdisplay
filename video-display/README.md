@@ -35,12 +35,16 @@ Best setup: set Windows *Display orientation* to **Portrait** so no `rotate` is 
 
 Touch:
 - Tap the video: shows ⏮ ⏯ ⏭ (previous / pause-play / next); they hide again after 4 s
+- Full-screen button (bottom-right of the video): the video turns sideways and fills the
+  whole vertical screen; tap it again to go back. It also goes back by itself when the video
+  ends. Direction: `fullscreenRotation` in `src/config.js` (90, -90, or 0 for no rotation)
 - Sound button (bottom-right of the video): sound on/off
 - Tap a video in the list: play it (and turn the sound on)
 - A paused video resumes by itself after 60 s (`resumeAfterPauseSeconds` in `src/config.js`)
 - The list scrolls itself to the playing video once nobody has touched it for 20 s
 
-Keyboard: `→` / `←` next / previous, `Space` pause, `M` sound, `F` full screen.
+Keyboard: `→` / `←` next / previous, `Space` pause, `M` sound, `V` video full screen (`Esc` to leave),
+`F` browser full screen.
 
 If a video fails or freezes it is skipped automatically. If there's no internet the
 screen shows "Sin conexión" and retries every 30 seconds.
