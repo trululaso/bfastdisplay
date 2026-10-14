@@ -1,0 +1,12 @@
+// Cloudflare Worker that serves the built app (npm run build -> dist/).
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "bfastdisplay",
+  "compatibility_date": "2026-09-01",
+  // Builds the app on every deploy, so it works even if the dashboard's build command is empty.
+  "build": { "command": "npm run build" },
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  }
+}
