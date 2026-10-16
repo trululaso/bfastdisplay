@@ -1,25 +1,15 @@
-import { useEffect, useState } from 'react'
 import { settings, videos } from './config.js'
 import { navigate } from './router.js'
 import Stage from './Stage.jsx'
-import { Backdrop, Clock, Thumb } from './parts.jsx'
+import { Clock, Thumb } from './parts.jsx'
 
 const ROTATE = Number(new URLSearchParams(window.location.search).get('rotate')) || 0
-const BACKDROP_EVERY_MS = 8000
 
 // Landing page: every video as a card. Tapping one opens it; the button in the
 // bottom-right corner starts the loop that plays them all.
 export default function Menu() {
-  const [backdrop, setBackdrop] = useState(0)
-
-  useEffect(() => {
-    const timer = setInterval(() => setBackdrop((i) => (i + 1) % videos.length), BACKDROP_EVERY_MS)
-    return () => clearInterval(timer)
-  }, [])
-
   return (
     <>
-      <Backdrop id={videos[backdrop].youtubeId} />
       <Stage width={1080} height={1920} rotate={ROTATE}>
         <main className="screen menu">
           <header className="top">

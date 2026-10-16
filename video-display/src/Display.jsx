@@ -4,7 +4,7 @@ import { settings, videos } from './config.js'
 import { goToMenu, navigate } from './router.js'
 import Stage from './Stage.jsx'
 import YouTubePlayer from './YouTubePlayer.jsx'
-import { Backdrop, Clock, StoryBars, Thumb } from './parts.jsx'
+import { Clock, StoryBars, Thumb } from './parts.jsx'
 import PlayerControls from './PlayerControls.jsx'
 import VideoList from './VideoList.jsx'
 
@@ -56,8 +56,8 @@ const formatTime = (s) => `${Math.floor(s / 60)}:${pad(Math.floor(s % 60))}`
 const indexOf = (youtubeId) => videos.findIndex((v) => v.youtubeId === youtubeId)
 
 // Without `videoId`: the /loop display, which plays every video one after another.
-// With `videoId`: that one video (from the menu), with a back button; it returns
-// to the menu when it ends, and ⏮ ⏭ / the list switch to another video.
+// With `videoId`: only that video (from the menu), with a back
+// button; it returns to the menu when it ends.
 export default function Display({ videoId }) {
   const single = videoId != null
   const [state, dispatch] = useReducer(reducer, null, () => ({
@@ -212,10 +212,9 @@ export default function Display({ videoId }) {
 
   return (
     <>
-      <Backdrop id={video.youtubeId} />
       <Stage width={1080} height={1920} rotate={ROTATE}>
         {/* Any tap turns the sound on (browsers need one interaction for that). */}
-        <main className="screen" onClick={() => muted && setMuted(false)}>
+        <main className={`screen${single ? ' single' : ''}`} onClick={() => muted && setMuted(false)}>
           {!single && <StoryBars count={videos.length} active={pos} fraction={fraction} />}
 
           <header className="top">
@@ -232,7 +231,7 @@ export default function Display({ videoId }) {
                 <span className="brand-event">{settings.eventName}</span>
               </div>
             )}
-            <Clock />
+            {!single && <Clock />}
           </header>
 
           {fullscreen && <div className="fs-backdrop" />}
@@ -262,49 +261,53 @@ export default function Display({ videoId }) {
                 onToggleMute={toggleMute}
                 fullscreen={fullscreen}
                 onToggleFullscreen={toggleVideoFullscreen}
-                onPrev={() => step(-1)}
-                onNext={() => step(1)}
+                onPrev={single ? null : () => step(-1)}
+                onNext={single ? null : () => step(1)}
               />
               <div className="fs-progress" style={{ transform: `scaleX(${fraction})` }} />
             </section>
           </div>
 
-          <div className="progress">
-            <div className="progress-track">
-              <div className="progress-fill" style={{ transform: `scaleX(${fraction})` }} />
-            </div>
-            <span className="progress-time">
-              {duration ? `${formatTime(Math.min(time, duration))} / ${formatTime(duration)}` : '–:–'}
-            </span>
-          </div>
-
-          <section className="now" key={key}>
-            {settings.showQr && (
-              <div className="qr">
-                <QRCodeSVG value={`https://youtu.be/${video.youtubeId}`} size={104} marginSize={0} fgColor="#0b0c0e" />
-                <span>Escanéame</span>
+          {!single && (
+            <>
+              <div className="progress">
+                <div className="progress-track">
+                  <div className="progress-fill" style={{ transform: `scaleX(${fraction})` }} />
+                </div>
+                <span className="progress-time">
+                  {duration ? `${formatTime(Math.min(time, duration))} / ${formatTime(duration)}` : '–:–'}
+                </span>
               </div>
-            )}
-            <div className="now-meta">
-              <span className="now-count">
-                {pad(pos + 1)}
-                <span>/{pad(videos.length)}</span>
-              </span>
-              {video.tag && <span className="tag">{video.tag}</span>}
-            </div>
-            <h1 className={`now-title${video.title.length > 34 ? ' is-long' : ''}`}>
-              {titleWords.map((word, i) => (
-                <Fragment key={i}>
-                  <span className="word">
-                    <span style={{ '--i': i }}>{word}</span>
-                  </span>{' '}
-                </Fragment>
-              ))}
-            </h1>
-            {video.subtitle && <p className="now-subtitle">{video.subtitle}</p>}
-          </section>
 
-          <VideoList videos={videos} currentIndex={order[pos]} fraction={fraction} onSelect={select} />
+              <section className="now" key={key}>
+                {settings.showQr && (
+                  <div className="qr">
+                    <QRCodeSVG value={`https://youtu.be/${video.youtubeId}`} size={104} marginSize={0} fgColor="#0b0c0e" />
+                    <span>Escanéame</span>
+                  </div>
+                )}
+                <div className="now-meta">
+                  <span className="now-count">
+                    {pad(pos + 1)}
+                    <span>/{pad(videos.length)}</span>
+                  </span>
+                  {video.tag && <span className="tag">{video.tag}</span>}
+                </div>
+                <h1 className={`now-title${video.title.length > 34 ? ' is-long' : ''}`}>
+                  {titleWords.map((word, i) => (
+                    <Fragment key={i}>
+                      <span className="word">
+                        <span style={{ '--i': i }}>{word}</span>
+                      </span>{' '}
+                    </Fragment>
+                  ))}
+                </h1>
+                {video.subtitle && <p className="now-subtitle">{video.subtitle}</p>}
+              </section>
+
+              <VideoList videos={videos} currentIndex={order[pos]} fraction={fraction} onSelect={select} />
+            </>
+          )}
 
           {/* Same corner as the menu's Loop button. */}
           {!single && (

@@ -3,7 +3,8 @@ import { useEffect, useRef, useState } from 'react'
 const HIDE_AFTER_MS = 4000
 
 // Touch controls over the video. A tap shows ⏮ ⏯ ⏭ for a few seconds (they stay
-// while paused); the full-screen and sound buttons are always visible.
+// while paused; ⏮ ⏭ only when onPrev/onNext are given); the full-screen and
+// sound buttons are always visible.
 export default function PlayerControls({ paused, muted, fullscreen, onTogglePause, onToggleMute, onToggleFullscreen, onPrev, onNext }) {
   const [visible, setVisible] = useState(false)
   const hideTimer = useRef()
@@ -36,15 +37,19 @@ export default function PlayerControls({ paused, muted, fullscreen, onTogglePaus
   return (
     <div className={`controls${visible || paused ? ' is-visible' : ''}`} onClick={onBackground}>
       <div className="controls-center">
-        <button type="button" className="ctrl" aria-label="Video anterior" onClick={press(onPrev)}>
-          <Icon d="M19 20 9 12l10-8v16zM5 19V5" filled />
-        </button>
+        {onPrev && (
+          <button type="button" className="ctrl" aria-label="Video anterior" onClick={press(onPrev)}>
+            <Icon d="M19 20 9 12l10-8v16zM5 19V5" filled />
+          </button>
+        )}
         <button type="button" className="ctrl ctrl-main" aria-label={paused ? 'Reproducir' : 'Pausar'} onClick={press(onTogglePause)}>
           {paused ? <Icon d="M7 4v16l13-8z" filled /> : <Icon d="M7 4h3.5v16H7zM13.5 4H17v16h-3.5z" filled />}
         </button>
-        <button type="button" className="ctrl" aria-label="Video siguiente" onClick={press(onNext)}>
-          <Icon d="m5 4 10 8-10 8V4zM19 5v14" filled />
-        </button>
+        {onNext && (
+          <button type="button" className="ctrl" aria-label="Video siguiente" onClick={press(onNext)}>
+            <Icon d="m5 4 10 8-10 8V4zM19 5v14" filled />
+          </button>
+        )}
       </div>
       <div className="controls-corner">
         <button

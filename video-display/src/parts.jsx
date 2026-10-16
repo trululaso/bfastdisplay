@@ -19,27 +19,6 @@ export function Thumb({ id, hd = false, className }) {
   )
 }
 
-// Blurred, slowly drifting copy of the current thumbnail that fills the whole
-// screen. New videos cross-fade in on top of the previous one.
-export function Backdrop({ id }) {
-  const [layers, setLayers] = useState([id])
-
-  useEffect(() => {
-    setLayers((current) => (current[current.length - 1] === id ? current : [...current.slice(-1), id]))
-  }, [id])
-
-  return (
-    <div className="backdrop" aria-hidden>
-      {layers.map((layerId) => (
-        <div key={layerId} className="backdrop-layer">
-          <img src={thumbUrl(layerId, 'hqdefault')} alt="" />
-        </div>
-      ))}
-      <div className="backdrop-shade" />
-    </div>
-  )
-}
-
 const timeFormat = new Intl.DateTimeFormat('es-CL', { hour: '2-digit', minute: '2-digit', hour12: false })
 const dateFormat = new Intl.DateTimeFormat('es-CL', { weekday: 'long', day: 'numeric', month: 'long' })
 

@@ -22,7 +22,7 @@ export const settings = {
   // how the TV was turned), 0 = don't rotate (video just fills the width).
   fullscreenRotation: 90,
   // Show a QR code so visitors can open the current video on their phone.
-  showQr: true,
+  showQr: false,
 }
 
 // youtubeId: the part after "watch?v=" in the YouTube link.
