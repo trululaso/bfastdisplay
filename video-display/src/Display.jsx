@@ -4,7 +4,7 @@ import { settings, videos } from './config.js'
 import { goToMenu, navigate } from './router.js'
 import Stage from './Stage.jsx'
 import YouTubePlayer from './YouTubePlayer.jsx'
-import { Clock, StoryBars, Thumb } from './parts.jsx'
+import { Clock, Scrubber, StoryBars, Thumb } from './parts.jsx'
 import PlayerControls from './PlayerControls.jsx'
 import VideoList from './VideoList.jsx'
 
@@ -75,6 +75,7 @@ export default function Display({ videoId }) {
   const [fullscreen, setFullscreen] = useState(false)
   const [leftFullscreen, setLeftFullscreen] = useState(false) // plays the "turn back" animation
   const [offline, setOffline] = useState(false)
+  const [seek, setSeek] = useState(null)
 
   const { order, pos, key, playing, paused, time } = state
   const video = videos[order[pos]]
@@ -150,6 +151,16 @@ export default function Display({ videoId }) {
       if (maxSeconds && t >= maxSeconds) step(1)
     },
     [step, maxSeconds],
+  )
+
+  // From the time bar: jump there.
+  const handleSeek = useCallback(
+    (f) => {
+      const t = f * duration
+      setSeek({ time: t })
+      dispatch({ type: 'progress', time: t, duration: state.duration })
+    },
+    [duration, state.duration],
   )
 
   const toggleVideoFullscreen = useCallback(() => {
@@ -247,6 +258,7 @@ export default function Display({ videoId }) {
                 playKey={key}
                 muted={muted}
                 paused={paused}
+                seek={seek}
                 onPlaying={handlePlaying}
                 onEnded={handleEnded}
                 onFail={handleFail}
@@ -271,9 +283,7 @@ export default function Display({ videoId }) {
           {!single && (
             <>
               <div className="progress">
-                <div className="progress-track">
-                  <div className="progress-fill" style={{ transform: `scaleX(${fraction})` }} />
-                </div>
+                <Scrubber fraction={fraction} disabled={!duration} rotate={ROTATE} onSeek={handleSeek} />
                 <span className="progress-time">
                   {duration ? `${formatTime(Math.min(time, duration))} / ${formatTime(duration)}` : '–:–'}
                 </span>

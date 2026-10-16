@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 const thumbUrl = (id, quality) => `https://i.ytimg.com/vi/${id}/${quality}.jpg`
 
@@ -48,6 +48,55 @@ export function StoryBars({ count, active, fraction }) {
           />
         </div>
       ))}
+    </div>
+  )
+}
+
+// Time bar under the video. Tap or drag it to jump; the jump happens on release.
+// `rotate` is the stage rotation, so the bar works on a TV turned with ?rotate=.
+export function Scrubber({ fraction, disabled, rotate = 0, onSeek }) {
+  const trackRef = useRef(null)
+  const [drag, setDrag] = useState(null) // fraction while the finger is down
+
+  const at = (e) => {
+    const rect = trackRef.current.getBoundingClientRect()
+    const turn = (((rotate % 360) + 360) % 360) / 90
+    const pos = [
+      (e.clientX - rect.left) / rect.width,
+      (e.clientY - rect.top) / rect.height,
+      (rect.right - e.clientX) / rect.width,
+      (rect.bottom - e.clientY) / rect.height,
+    ][Math.round(turn) % 4]
+    return Math.min(Math.max(pos, 0), 1)
+  }
+
+  const onDown = (e) => {
+    if (disabled) return
+    e.stopPropagation()
+    e.currentTarget.setPointerCapture(e.pointerId)
+    setDrag(at(e))
+  }
+  const onMove = (e) => drag != null && setDrag(at(e))
+  const onUp = (e) => {
+    if (drag == null) return
+    onSeek(at(e))
+    setDrag(null)
+  }
+
+  const shown = drag ?? fraction
+  return (
+    <div
+      className={`scrubber${drag != null ? ' is-dragging' : ''}`}
+      onPointerDown={onDown}
+      onPointerMove={onMove}
+      onPointerUp={onUp}
+      onPointerCancel={() => setDrag(null)}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="progress-track" ref={trackRef}>
+        <div className="progress-fill" style={{ transform: `scaleX(${shown})` }} />
+      </div>
+      <div className="scrubber-knob" style={{ left: `${shown * 100}%` }} />
     </div>
   )
 }

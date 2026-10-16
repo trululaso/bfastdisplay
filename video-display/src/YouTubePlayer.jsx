@@ -24,7 +24,8 @@ function loadYouTubeApi() {
 
 // One YouTube player that is reused for every video (loadVideoById),
 // which is smoother than tearing the iframe down between videos.
-export default function YouTubePlayer({ videoId, start = 0, playKey, muted, paused, onPlaying, onEnded, onFail, onProgress, onAutoMuted }) {
+// `seek` ({ time }) jumps to that second; pass a new object each time.
+export default function YouTubePlayer({ videoId, start = 0, playKey, muted, paused, seek, onPlaying, onEnded, onFail, onProgress, onAutoMuted }) {
   const hostRef = useRef(null)
   const playerRef = useRef(null)
   const callbacks = useRef({})
@@ -130,6 +131,10 @@ export default function YouTubePlayer({ videoId, start = 0, playKey, muted, paus
     if (paused) p.pauseVideo()
     else p.playVideo()
   }, [paused])
+
+  useEffect(() => {
+    if (seek) playerRef.current?.seekTo?.(seek.time, true)
+  }, [seek])
 
   useEffect(() => {
     const p = playerRef.current
