@@ -1,8 +1,17 @@
 # Edifica 2026 — video display
 
-Portrait (vertical TV) player that loops the company's YouTube videos one after another.
-Visitors can tap any video in the list ("Todos los videos") to play it right away; when it
-ends, the loop continues with the next one.
+Portrait (vertical TV) player for the company's YouTube videos.
+
+## Pages
+
+| URL            | What it shows                                                                 |
+| -------------- | ----------------------------------------------------------------------------- |
+| `/`            | Menu with every video. Tap one to open it; the **Loop** button (bottom-right) opens `/loop` |
+| `/video/<id>`  | That one video, with a **Volver** button back to the menu. Returns to the menu when it ends |
+| `/loop`        | Plays all the videos one after another. Tap any video in the list ("Todos los videos") to play it right away; when it ends, the loop continues with the next one. The **Menú** button (bottom-right) goes back to the menu |
+
+URL options (below) carry over between pages. To have the TV start straight in the loop,
+change the address at the end of `start-display.bat` to `http://localhost:4173/loop`.
 
 ## Run it
 
@@ -44,7 +53,7 @@ Touch:
 - The list scrolls itself to the playing video once nobody has touched it for 20 s
 
 Keyboard: `→` / `←` next / previous, `Space` pause, `M` sound, `V` video full screen (`Esc` to leave),
-`F` browser full screen.
+`F` browser full screen, `Backspace` back to the menu (on a video page).
 
 If a video fails or freezes it is skipped automatically. If there's no internet the
 screen shows "Sin conexión" and retries every 30 seconds.

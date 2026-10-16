@@ -624,6 +624,7 @@ body.hide-cursor * {
   flex-direction: column;
   gap: 16px;
   margin-top: 22px;
+  padding-bottom: 130px; /* the last video can scroll clear of the Menú button */
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: none;
@@ -776,6 +777,193 @@ body.hide-cursor * {
   background: var(--accent);
   transform-origin: left;
   transition: transform 0.5s linear;
+}
+
+/* ── Menu (landing page) ──────────────────────────────────── */
+
+.menu-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: 72px;
+  animation: rise-in 0.7s var(--ease-out) both;
+}
+
+.menu-heading h1 {
+  font-size: 120px;
+  line-height: 0.9;
+  font-weight: 800;
+  font-stretch: 108%;
+  letter-spacing: -0.03em;
+}
+
+.menu-hint {
+  font-size: 24px;
+  color: var(--accent);
+  animation: nudge 3s ease-in-out infinite;
+}
+
+.menu-grid {
+  flex: 1;
+  min-height: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-content: start;
+  gap: 40px 28px;
+  margin: 44px calc(var(--gutter) * -0.5) -40px;
+  padding: 4px calc(var(--gutter) * 0.5) 180px; /* room for the loop button */
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  mask-image: linear-gradient(180deg, transparent 0, #000 24px, #000 85%, transparent 100%);
+}
+
+.menu-grid::-webkit-scrollbar {
+  display: none;
+}
+
+.menu-grid li {
+  animation: slide-in 0.8s var(--ease-out) both;
+  animation-delay: calc(0.2s + min(var(--i), 7) * 0.07s);
+}
+
+.menu-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.menu-card:active {
+  transform: scale(0.97);
+}
+
+.menu-thumb {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  margin-bottom: 10px;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #000;
+  box-shadow:
+    0 24px 50px -24px rgba(0, 0, 0, 0.9),
+    0 0 0 1px var(--line);
+}
+
+.menu-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.menu-play {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(11, 12, 14, 0.6);
+  backdrop-filter: blur(12px);
+  transition: background 0.2s ease;
+}
+
+.menu-play svg {
+  width: 28px;
+  height: 28px;
+  margin-left: 4px;
+}
+
+.menu-card:active .menu-play {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.menu-title {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.12;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Bottom-right corner: starts /loop on the menu, and goes back to the menu from /loop. */
+.loop-button {
+  position: absolute;
+  right: var(--gutter);
+  bottom: 48px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 104px;
+  padding: 0 44px 0 36px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font: inherit;
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 24px 50px -16px rgba(0, 0, 0, 0.85);
+  animation: rise-in 0.8s var(--ease-out) 0.5s both;
+  transition: transform 0.15s ease;
+}
+
+.loop-button:active {
+  transform: scale(0.95);
+  background: #ffa04a;
+}
+
+.loop-button svg {
+  width: 44px;
+  height: 44px;
+}
+
+/* Back to the menu, in place of the event name on a single video page. */
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 84px;
+  padding: 0 36px 0 26px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(244, 241, 234, 0.12);
+  color: var(--ink);
+  font: inherit;
+  font-size: 30px;
+  font-weight: 700;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  transition:
+    transform 0.15s ease,
+    background 0.2s ease;
+}
+
+.back-button:active {
+  transform: scale(0.95);
+  background: rgba(244, 241, 234, 0.3);
+}
+
+.back-button svg {
+  width: 36px;
+  height: 36px;
 }
 
 /* ── Offline ───────────────────────────────────────────────── */

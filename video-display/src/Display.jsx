@@ -1,6 +1,7 @@
 import { Fragment, useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
 import { settings, videos } from './config.js'
+import { goToMenu, navigate } from './router.js'
 import Stage from './Stage.jsx'
 import YouTubePlayer from './YouTubePlayer.jsx'
 import { Backdrop, Clock, StoryBars, Thumb } from './parts.jsx'
@@ -52,17 +53,24 @@ function reducer(state, action) {
 const pad = (n) => String(n).padStart(2, '0')
 const formatTime = (s) => `${Math.floor(s / 60)}:${pad(Math.floor(s % 60))}`
 
-export default function App() {
+const indexOf = (youtubeId) => videos.findIndex((v) => v.youtubeId === youtubeId)
+
+// Without `videoId`: the /loop display, which plays every video one after another.
+// With `videoId`: that one video (from the menu), with a back button; it returns
+// to the menu when it ends, and ⏮ ⏭ / the list switch to another video.
+export default function Display({ videoId }) {
+  const single = videoId != null
   const [state, dispatch] = useReducer(reducer, null, () => ({
-    order: makeOrder(),
-    pos: 0,
+    order: single ? videos.map((_, i) => i) : makeOrder(),
+    pos: single ? indexOf(videoId) : 0,
     key: 0,
     playing: false,
     paused: false,
     time: 0,
     duration: 0,
   }))
-  const [muted, setMuted] = useState(START_MUTED)
+  // Opened from the menu = someone just tapped the screen, so sound is allowed.
+  const [muted, setMuted] = useState(single ? false : START_MUTED)
   // Video blown up to fill the screen (turned sideways, see settings.fullscreenRotation).
   const [fullscreen, setFullscreen] = useState(false)
   const [leftFullscreen, setLeftFullscreen] = useState(false) // plays the "turn back" animation
@@ -70,19 +78,39 @@ export default function App() {
 
   const { order, pos, key, playing, paused, time } = state
   const video = videos[order[pos]]
-  const duration = settings.maxSecondsPerVideo ? Math.min(state.duration, settings.maxSecondsPerVideo) : state.duration
+  const maxSeconds = single ? null : settings.maxSecondsPerVideo
+  const duration = maxSeconds ? Math.min(state.duration, maxSeconds) : state.duration
   const fraction = duration ? Math.min(time / duration, 1) : 0
 
   const keyRef = useRef(key)
   keyRef.current = key
+  const currentRef = useRef(order[pos])
+  currentRef.current = order[pos]
   const pausedRef = useRef(paused)
   pausedRef.current = paused
   const lastAlive = useRef(Date.now())
   const lastTime = useRef(-1)
   const failures = useRef(0)
 
-  const step = useCallback((n) => dispatch({ type: 'step', step: n }), [])
-  const select = useCallback((index) => dispatch({ type: 'select', index }), [])
+  // On a single video page, switching video changes the URL (the effect below then loads it).
+  const select = useCallback(
+    (index) => {
+      if (single) navigate(`/video/${videos[index].youtubeId}`, { replace: true })
+      else dispatch({ type: 'select', index })
+    },
+    [single],
+  )
+  const step = useCallback(
+    (n) => {
+      if (single) select((((currentRef.current + n) % videos.length) + videos.length) % videos.length)
+      else dispatch({ type: 'step', step: n })
+    },
+    [single, select],
+  )
+
+  useEffect(() => {
+    if (single && indexOf(videoId) !== currentRef.current) dispatch({ type: 'select', index: indexOf(videoId) })
+  }, [single, videoId])
   const togglePause = useCallback(() => dispatch({ type: 'pause', paused: !pausedRef.current }), [])
   const toggleMute = useCallback(() => setMuted((m) => !m), [])
 
@@ -119,9 +147,9 @@ export default function App() {
         lastAlive.current = Date.now()
       }
       dispatch({ type: 'progress', time: t, duration: d })
-      if (settings.maxSecondsPerVideo && t >= settings.maxSecondsPerVideo) step(1)
+      if (maxSeconds && t >= maxSeconds) step(1)
     },
-    [step],
+    [step, maxSeconds],
   )
 
   const toggleVideoFullscreen = useCallback(() => {
@@ -129,11 +157,13 @@ export default function App() {
     setLeftFullscreen(true)
   }, [])
 
-  // When a video finishes, go back to the vertical layout for the next one.
+  // When a video finishes, go back to the vertical layout for the next one
+  // (or back to the menu after a video picked there).
   const handleEnded = useCallback(() => {
+    if (single) return goToMenu()
     setFullscreen(false)
     step(1)
-  }, [step])
+  }, [single, step])
 
   // Watchdog: a video that never starts or freezes gets skipped (pausing doesn't count).
   useEffect(() => {
@@ -162,7 +192,7 @@ export default function App() {
   }, [offline])
 
   // Keyboard for setup: ← → change video, space pause, M sound, V video full screen,
-  // Esc leave it, F browser full screen.
+  // Esc leave it, F browser full screen, Backspace back to the menu (single video).
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === 'ArrowRight') step(1)
@@ -172,26 +202,11 @@ export default function App() {
       else if (e.key === 'v' || e.key === 'V') toggleVideoFullscreen()
       else if (e.key === 'Escape') setFullscreen(false)
       else if (e.key === 'f' || e.key === 'F') toggleFullscreen()
+      else if (e.key === 'Backspace' && single) goToMenu()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [step, togglePause, toggleMute, toggleVideoFullscreen])
-
-  // Hide the mouse pointer when it isn't moving.
-  useEffect(() => {
-    let timer
-    const onMove = () => {
-      document.body.classList.remove('hide-cursor')
-      clearTimeout(timer)
-      timer = setTimeout(() => document.body.classList.add('hide-cursor'), 2500)
-    }
-    onMove()
-    window.addEventListener('pointermove', onMove)
-    return () => {
-      clearTimeout(timer)
-      window.removeEventListener('pointermove', onMove)
-    }
-  }, [])
+  }, [single, step, togglePause, toggleMute, toggleVideoFullscreen])
 
   const titleWords = video.title.split(' ')
 
@@ -201,13 +216,22 @@ export default function App() {
       <Stage width={1080} height={1920} rotate={ROTATE}>
         {/* Any tap turns the sound on (browsers need one interaction for that). */}
         <main className="screen" onClick={() => muted && setMuted(false)}>
-          <StoryBars count={videos.length} active={pos} fraction={fraction} />
+          {!single && <StoryBars count={videos.length} active={pos} fraction={fraction} />}
 
           <header className="top">
-            <div className="brand">
-              {settings.logo && <img className="brand-logo" src={settings.logo} alt="" />}
-              <span className="brand-event">{settings.eventName}</span>
-            </div>
+            {single ? (
+              <button type="button" className="back-button" onClick={goToMenu}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <path d="M19 12H5M12 19l-7-7 7-7" />
+                </svg>
+                Volver
+              </button>
+            ) : (
+              <div className="brand">
+                {settings.logo && <img className="brand-logo" src={settings.logo} alt="" />}
+                <span className="brand-event">{settings.eventName}</span>
+              </div>
+            )}
             <Clock />
           </header>
 
@@ -281,6 +305,19 @@ export default function App() {
           </section>
 
           <VideoList videos={videos} currentIndex={order[pos]} fraction={fraction} onSelect={select} />
+
+          {/* Same corner as the menu's Loop button. */}
+          {!single && (
+            <button type="button" className="loop-button" onClick={goToMenu}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <rect x="3" y="3" width="7" height="7" rx="1.5" />
+                <rect x="14" y="3" width="7" height="7" rx="1.5" />
+                <rect x="3" y="14" width="7" height="7" rx="1.5" />
+                <rect x="14" y="14" width="7" height="7" rx="1.5" />
+              </svg>
+              Menú
+            </button>
+          )}
 
           {offline && (
             <div className="offline">
