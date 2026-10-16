@@ -56,7 +56,7 @@ const formatTime = (s) => `${Math.floor(s / 60)}:${pad(Math.floor(s % 60))}`
 const indexOf = (youtubeId) => videos.findIndex((v) => v.youtubeId === youtubeId)
 
 // Without `videoId`: the /loop display, which plays every video one after another.
-// With `videoId`: only that video (from the menu), with a back
+// With `videoId`: only that video (from the menu) on black, with a back
 // button; it returns to the menu when it ends.
 export default function Display({ videoId }) {
   const single = videoId != null
@@ -223,6 +223,7 @@ export default function Display({ videoId }) {
 
   return (
     <>
+      {single && <div className="page-dark" />}
       <Stage width={1080} height={1920} rotate={ROTATE}>
         {/* Any tap turns the sound on (browsers need one interaction for that). */}
         <main className={`screen${single ? ' single' : ''}`} onClick={() => muted && setMuted(false)}>

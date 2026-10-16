@@ -965,7 +965,13 @@ body.hide-cursor * {
   height: 36px;
 }
 
-/* ── Single video page: only the video ─────────────────── */
+/* ── Single video page: only the video, on black ─────────── */
+
+.page-dark {
+  position: fixed;
+  inset: 0;
+  background: #000;
+}
 
 .screen.single {
   justify-content: center;
@@ -981,6 +987,17 @@ body.hide-cursor * {
 
 .screen.single .player-slot {
   margin-top: 0;
+}
+
+/* Light button on the black page. */
+.screen.single .back-button {
+  border-color: rgba(244, 241, 234, 0.16);
+  background: rgba(244, 241, 234, 0.1);
+  color: var(--on-video);
+}
+
+.screen.single .back-button:active {
+  background: rgba(244, 241, 234, 0.24);
 }
 
 /* ── Offline ───────────────────────────────────────────────── */
