@@ -12,7 +12,7 @@ export const settings = {
   // Cut long videos after N seconds (null = play each video to the end).
   maxSecondsPerVideo: null,
   // If a visitor pauses a video and walks away, resume it after N seconds (null = never).
-  resumeAfterPauseSeconds: 60,
+  resumeAfterPauseSeconds: null,
   // Full-screen video turns sideways to fill the vertical TV, like a phone held
   // horizontally. 90 = clockwise, -90 = counter-clockwise (pick the one that matches
   // how the TV was turned), 0 = don't rotate (video just fills the width).
