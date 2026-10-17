@@ -19,6 +19,7 @@ export default function Menu() {
     <>
       <Stage width={1080} height={1920} rotate={ROTATE}>
         <main className="screen menu">
+          <img className="menu-logo" src="/geto.png" alt="GETO" />
           <h1 className="menu-hint">Toca un video para verlo</h1>
 
           <ol className={`menu-grid${FREE_CORNER ? '' : ' needs-room'}`} style={{ '--cols': COLS, '--rows': ROWS }}>

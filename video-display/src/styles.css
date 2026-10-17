@@ -778,6 +778,13 @@ body.hide-cursor * {
 
 /* ── Menu (landing page) ──────────────────────────────────── */
 
+.menu-logo {
+  align-self: flex-start;
+  height: 104px;
+  width: auto;
+  margin-top: 20px;
+}
+
 .menu-hint {
   margin-top: 28px;
   font-size: 60px;
