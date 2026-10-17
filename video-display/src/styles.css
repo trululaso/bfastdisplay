@@ -228,22 +228,18 @@ body.hide-cursor * {
   animation: fade-in 0.4s ease both;
 }
 
-/* Thin progress line along the bottom of the full-screen video. */
-.fs-progress {
-  display: none;
+/* Draggable time bar across the full-screen video, above the corner buttons.
+   (Doubled class so it wins over .scrubber, which comes later.) */
+.scrubber.fs-scrubber {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 6px;
-  background: var(--accent);
-  transform-origin: left;
-  transition: transform 0.5s linear;
-  pointer-events: none;
+  left: 40px;
+  right: 40px;
+  bottom: 118px;
+  margin: 0;
 }
 
-.is-fullscreen .fs-progress {
-  display: block;
+.scrubber.fs-scrubber .progress-track {
+  background: rgba(244, 241, 234, 0.35);
 }
 
 .yt-host iframe,

@@ -54,7 +54,7 @@ export function StoryBars({ count, active, fraction }) {
 
 // Time bar under the video. Tap or drag it to jump; the jump happens on release.
 // `rotate` is the stage rotation, so the bar works on a TV turned with ?rotate=.
-export function Scrubber({ fraction, disabled, rotate = 0, onSeek }) {
+export function Scrubber({ fraction, disabled, rotate = 0, className = '', onSeek }) {
   const trackRef = useRef(null)
   const [drag, setDrag] = useState(null) // fraction while the finger is down
 
@@ -86,7 +86,7 @@ export function Scrubber({ fraction, disabled, rotate = 0, onSeek }) {
   const shown = drag ?? fraction
   return (
     <div
-      className={`scrubber${drag != null ? ' is-dragging' : ''}`}
+      className={`scrubber ${className}${drag != null ? ' is-dragging' : ''}`}
       onPointerDown={onDown}
       onPointerMove={onMove}
       onPointerUp={onUp}

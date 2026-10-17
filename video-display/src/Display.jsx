@@ -220,6 +220,17 @@ export default function Display({ videoId }) {
   }, [single, step, togglePause, toggleMute, toggleVideoFullscreen])
 
   const titleWords = video.title.split(' ')
+  const fsRotation = settings.fullscreenRotation || 0
+
+  // Time bar under the video (both pages); tap or drag to jump.
+  const progress = (
+    <div className="progress">
+      <Scrubber fraction={fraction} disabled={!duration} rotate={ROTATE} onSeek={handleSeek} />
+      <span className="progress-time">
+        {duration ? `${formatTime(Math.min(time, duration))} / ${formatTime(duration)}` : '–:–'}
+      </span>
+    </div>
+  )
 
   return (
     <>
@@ -245,7 +256,7 @@ export default function Display({ videoId }) {
           <div className="player-slot">
             <section
               className={`player${fullscreen ? ' is-fullscreen' : leftFullscreen ? ' is-returning' : ''}${settings.fullscreenRotation ? '' : ' no-rotate'}`}
-              style={{ '--fs-rotate': `${settings.fullscreenRotation || 0}deg` }}
+              style={{ '--fs-rotate': `${fsRotation}deg` }}
             >
               <YouTubePlayer
                 videoId={video.youtubeId}
@@ -271,7 +282,9 @@ export default function Display({ videoId }) {
                 onPrev={single ? null : () => step(-1)}
                 onNext={single ? null : () => step(1)}
               />
-              <div className="fs-progress" style={{ transform: `scaleX(${fraction})` }} />
+              {fullscreen && (
+                <Scrubber className="fs-scrubber" fraction={fraction} disabled={!duration} rotate={ROTATE + fsRotation} onSeek={handleSeek} />
+              )}
             </section>
           </div>
 
@@ -281,6 +294,8 @@ export default function Display({ videoId }) {
                 <strong>{video.title}</strong>
                 {video.subtitle && <span>{video.subtitle}</span>}
               </div>
+
+              {progress}
 
               <div className="single-bottom">
                 <button type="button" className="back-button" onClick={goToMenu}>
@@ -293,12 +308,7 @@ export default function Display({ videoId }) {
 
           {!single && (
             <>
-              <div className="progress">
-                <Scrubber fraction={fraction} disabled={!duration} rotate={ROTATE} onSeek={handleSeek} />
-                <span className="progress-time">
-                  {duration ? `${formatTime(Math.min(time, duration))} / ${formatTime(duration)}` : '–:–'}
-                </span>
-              </div>
+              {progress}
 
               <section className="now" key={key}>
                 {settings.showQr && (
