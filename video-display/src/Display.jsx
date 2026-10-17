@@ -239,7 +239,10 @@ export default function Display({ videoId }) {
         <main className={`screen${single ? ' single' : ''}`} onClick={() => muted && setMuted(false)}>
           {!single && <StoryBars count={videos.length} active={pos} fraction={fraction} />}
 
-          <img className="page-logo" src="/geto.png" alt="GETO" />
+          {/* The logo also takes you back to the menu. */}
+          <button type="button" className="page-logo-button" aria-label="Volver al menú" onClick={goToMenu}>
+            <img className="page-logo" src="/geto.png" alt="GETO" />
+          </button>
 
           {fullscreen && <div className="fs-backdrop" />}
 
@@ -326,22 +329,23 @@ export default function Display({ videoId }) {
                 {video.subtitle && <p className="now-subtitle">{video.subtitle}</p>}
               </section>
 
-              <VideoList videos={videos} currentIndex={order[pos]} fraction={fraction} onSelect={select} />
+              {/* The list scrolls behind the Menú button; the banner runs along the bottom. */}
+              <div className="library-area">
+                <VideoList videos={videos} currentIndex={order[pos]} fraction={fraction} onSelect={select} />
+                <button type="button" className="loop-button" onClick={goToMenu}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <rect x="3" y="3" width="7" height="7" rx="1.5" />
+                    <rect x="14" y="3" width="7" height="7" rx="1.5" />
+                    <rect x="3" y="14" width="7" height="7" rx="1.5" />
+                    <rect x="14" y="14" width="7" height="7" rx="1.5" />
+                  </svg>
+                  Menú
+                </button>
+              </div>
+              <Banner />
             </>
           )}
 
-          {/* Same corner as the menu's Loop button. */}
-          {!single && (
-            <button type="button" className="loop-button" onClick={goToMenu}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <rect x="3" y="3" width="7" height="7" rx="1.5" />
-                <rect x="14" y="3" width="7" height="7" rx="1.5" />
-                <rect x="3" y="14" width="7" height="7" rx="1.5" />
-                <rect x="14" y="14" width="7" height="7" rx="1.5" />
-              </svg>
-              Menú
-            </button>
-          )}
 
           {offline && (
             <div className="offline">

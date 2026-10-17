@@ -91,16 +91,32 @@ body.hide-cursor * {
 
 /* ── Logo ──────────────────────────────────────────────────── */
 
-.page-logo {
+.page-logo-button {
   align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.page-logo-button:active {
+  transform: scale(0.96);
+}
+
+.page-logo {
+  display: block;
   height: 120px;
   width: auto;
 }
 
 /* Under the story bars on the loop page. */
+.screen:not(.single) .page-logo-button {
+  margin-top: 36px;
+}
+
 .screen:not(.single) .page-logo {
   height: 96px;
-  margin-top: 36px;
 }
 
 /* ── Player ────────────────────────────────────────────────── */
@@ -502,6 +518,24 @@ body.hide-cursor * {
     opacity: 0;
     transform: translateY(24px);
   }
+}
+
+/* List plus the Menú button over its bottom-right corner, above the banner. */
+.library-area {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.library-area .loop-button {
+  right: 0;
+  bottom: 0;
+}
+
+.screen:not(.single):not(.menu) .banner {
+  margin-top: 28px;
 }
 
 /* ── Video library (tap to play) ───────────────────────────── */
