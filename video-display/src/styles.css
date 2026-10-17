@@ -784,12 +784,12 @@ body.hide-cursor * {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  margin-top: 72px;
+  margin-top: 44px;
   animation: rise-in 0.7s var(--ease-out) both;
 }
 
 .menu-heading h1 {
-  font-size: 120px;
+  font-size: 96px;
   line-height: 0.9;
   font-weight: 800;
   font-stretch: 108%;
@@ -802,36 +802,34 @@ body.hide-cursor * {
   animation: nudge 3s ease-in-out infinite;
 }
 
+/* Fills the rest of the screen; each row gets an equal share of the height. */
 .menu-grid {
   flex: 1;
   min-height: 0;
   list-style: none;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-content: start;
-  gap: 40px 28px;
-  margin: 44px calc(var(--gutter) * -0.5) -40px;
-  padding: 4px calc(var(--gutter) * 0.5) 180px; /* room for the loop button */
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scrollbar-width: none;
-  mask-image: linear-gradient(180deg, transparent 0, #000 24px, #000 85%, transparent 100%);
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--rows), minmax(0, 1fr));
+  gap: 30px 24px;
+  margin-top: 36px;
 }
 
-.menu-grid::-webkit-scrollbar {
-  display: none;
+.menu-grid.needs-room {
+  margin-bottom: 128px; /* the Loop button sits below the last row */
 }
 
 .menu-grid li {
+  min-height: 0;
   animation: slide-in 0.8s var(--ease-out) both;
-  animation-delay: calc(0.2s + min(var(--i), 7) * 0.07s);
+  animation-delay: calc(0.2s + min(var(--i), 7) * 0.05s);
 }
 
+/* The thumbnail takes whatever height the text below leaves. */
 .menu-card {
   display: flex;
   flex-direction: column;
-  gap: 8px;
   width: 100%;
+  height: 100%;
   padding: 0;
   border: 0;
   background: none;
@@ -848,9 +846,9 @@ body.hide-cursor * {
 
 .menu-thumb {
   position: relative;
-  aspect-ratio: 16 / 9;
-  margin-bottom: 10px;
-  border-radius: 20px;
+  flex: 1;
+  min-height: 0;
+  border-radius: 18px;
   overflow: hidden;
   background: #000;
   box-shadow:
@@ -859,19 +857,39 @@ body.hide-cursor * {
 }
 
 .menu-thumb img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
+/* Same height on every card, so the thumbnails in a row line up. */
+.menu-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  height: 112px;
+  padding-top: 12px;
+  overflow: hidden;
+}
+
+.menu-text .library-tag {
+  font-size: 15px;
+}
+
+.menu-text .library-subtitle {
+  font-size: 19px;
+}
+
 .menu-play {
   position: absolute;
-  left: 16px;
-  bottom: 16px;
+  left: 12px;
+  bottom: 12px;
   display: grid;
   place-items: center;
-  width: 64px;
-  height: 64px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   background: rgba(11, 12, 14, 0.6);
   color: var(--on-video);
@@ -880,9 +898,9 @@ body.hide-cursor * {
 }
 
 .menu-play svg {
-  width: 28px;
-  height: 28px;
-  margin-left: 4px;
+  width: 24px;
+  height: 24px;
+  margin-left: 3px;
 }
 
 .menu-card:active .menu-play {
@@ -891,13 +909,14 @@ body.hide-cursor * {
 }
 
 .menu-title {
-  font-size: 32px;
+  font-size: 25px;
   font-weight: 700;
   line-height: 1.12;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 /* Bottom-right corner: starts /loop on the menu, and goes back to the menu from /loop. */

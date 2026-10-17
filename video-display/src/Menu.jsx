@@ -5,7 +5,14 @@ import { Clock, Thumb } from './parts.jsx'
 
 const ROTATE = Number(new URLSearchParams(window.location.search).get('rotate')) || 0
 
-// Landing page: every video as a card. Tapping one opens it; the button in the
+// Every video fits on one screen: the grid's rows share the height between them.
+const COLS = videos.length > 8 ? 3 : 2
+const ROWS = Math.ceil(videos.length / COLS)
+// With an incomplete last row, the Loop button sits in the empty corner;
+// otherwise the grid leaves room for it underneath.
+const FREE_CORNER = videos.length % COLS !== 0
+
+// Landing page: every video as a card, no scrolling. Tapping one opens it; the button in the
 // bottom-right corner starts the loop that plays them all.
 export default function Menu() {
   return (
@@ -25,7 +32,7 @@ export default function Menu() {
             <span className="menu-hint">Toca un video para verlo</span>
           </div>
 
-          <ol className="menu-grid">
+          <ol className={`menu-grid${FREE_CORNER ? '' : ' needs-room'}`} style={{ '--cols': COLS, '--rows': ROWS }}>
             {videos.map((v, i) => (
               <li key={v.youtubeId} style={{ '--i': i }}>
                 <button type="button" className="menu-card" onClick={() => navigate(`/video/${v.youtubeId}`)}>
@@ -37,9 +44,11 @@ export default function Menu() {
                       </svg>
                     </span>
                   </div>
-                  {v.tag && <span className="library-tag">{v.tag}</span>}
-                  <span className="menu-title">{v.title}</span>
-                  {v.subtitle && <span className="library-subtitle">{v.subtitle}</span>}
+                  <span className="menu-text">
+                    {v.tag && <span className="library-tag">{v.tag}</span>}
+                    <span className="menu-title">{v.title}</span>
+                    {v.subtitle && <span className="library-subtitle">{v.subtitle}</span>}
+                  </span>
                 </button>
               </li>
             ))}
