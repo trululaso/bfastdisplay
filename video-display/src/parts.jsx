@@ -100,3 +100,19 @@ export function Scrubber({ fraction, disabled, rotate = 0, onSeek }) {
     </div>
   )
 }
+
+// bFast banner along the bottom of the video page.
+export function Banner() {
+  return (
+    <footer className="banner">
+      <p className="banner-text">
+        BFAST CONSTRUCCIÓN INDUSTRIALIZADA SPA.
+        <br />
+        DISTRIBUIDOR EXCLUSIVO PARA CHILE DE
+        <br />
+        GETO FORMWORKS – <span className="banner-url">www.bfastchile.cl</span>
+      </p>
+      <img className="banner-logo" src="/bfast.png" alt="bFast Construcción Industrializada" />
+    </footer>
+  )
+}

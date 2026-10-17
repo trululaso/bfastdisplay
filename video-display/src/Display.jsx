@@ -4,7 +4,7 @@ import { settings, videos } from './config.js'
 import { goToMenu, navigate } from './router.js'
 import Stage from './Stage.jsx'
 import YouTubePlayer from './YouTubePlayer.jsx'
-import { Clock, Scrubber, StoryBars, Thumb } from './parts.jsx'
+import { Banner, Clock, Scrubber, StoryBars, Thumb } from './parts.jsx'
 import PlayerControls from './PlayerControls.jsx'
 import VideoList from './VideoList.jsx'
 
@@ -56,8 +56,8 @@ const formatTime = (s) => `${Math.floor(s / 60)}:${pad(Math.floor(s % 60))}`
 const indexOf = (youtubeId) => videos.findIndex((v) => v.youtubeId === youtubeId)
 
 // Without `videoId`: the /loop display, which plays every video one after another.
-// With `videoId`: only that video (from the menu) on black, with a back
-// button; it returns to the menu when it ends.
+// With `videoId`: only that video (from the menu) with its title, the GETO logo,
+// the bFast banner and a Volver button; it returns to the menu when it ends.
 export default function Display({ videoId }) {
   const single = videoId != null
   const [state, dispatch] = useReducer(reducer, null, () => ({
@@ -223,28 +223,22 @@ export default function Display({ videoId }) {
 
   return (
     <>
-      {single && <div className="page-dark" />}
       <Stage width={1080} height={1920} rotate={ROTATE}>
         {/* Any tap turns the sound on (browsers need one interaction for that). */}
         <main className={`screen${single ? ' single' : ''}`} onClick={() => muted && setMuted(false)}>
           {!single && <StoryBars count={videos.length} active={pos} fraction={fraction} />}
 
-          <header className="top">
-            {single ? (
-              <button type="button" className="back-button" onClick={goToMenu}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                  <path d="M19 12H5M12 19l-7-7 7-7" />
-                </svg>
-                Volver
-              </button>
-            ) : (
+          {single ? (
+            <img className="single-logo" src="/geto.png" alt="GETO" />
+          ) : (
+            <header className="top">
               <div className="brand">
                 {settings.logo && <img className="brand-logo" src={settings.logo} alt="" />}
                 <span className="brand-event">{settings.eventName}</span>
               </div>
-            )}
-            {!single && <Clock />}
-          </header>
+              <Clock />
+            </header>
+          )}
 
           {fullscreen && <div className="fs-backdrop" />}
 
@@ -280,6 +274,22 @@ export default function Display({ videoId }) {
               <div className="fs-progress" style={{ transform: `scaleX(${fraction})` }} />
             </section>
           </div>
+
+          {single && (
+            <>
+              <div className="title-band" key={key}>
+                <strong>{video.title}</strong>
+                {video.subtitle && <span>{video.subtitle}</span>}
+              </div>
+
+              <div className="single-bottom">
+                <button type="button" className="back-button" onClick={goToMenu}>
+                  Volver
+                </button>
+                <Banner />
+              </div>
+            </>
+          )}
 
           {!single && (
             <>

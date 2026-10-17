@@ -1,7 +1,7 @@
-import { settings, videos } from './config.js'
+import { videos } from './config.js'
 import { navigate } from './router.js'
 import Stage from './Stage.jsx'
-import { Clock, Thumb } from './parts.jsx'
+import { Thumb } from './parts.jsx'
 
 const ROTATE = Number(new URLSearchParams(window.location.search).get('rotate')) || 0
 
@@ -19,18 +19,7 @@ export default function Menu() {
     <>
       <Stage width={1080} height={1920} rotate={ROTATE}>
         <main className="screen menu">
-          <header className="top">
-            <div className="brand">
-              {settings.logo && <img className="brand-logo" src={settings.logo} alt="" />}
-              <span className="brand-event">{settings.eventName}</span>
-            </div>
-            <Clock />
-          </header>
-
-          <div className="menu-heading">
-            <h1>Videos</h1>
-            <span className="menu-hint">Toca un video para verlo</span>
-          </div>
+          <h1 className="menu-hint">Toca un video para verlo</h1>
 
           <ol className={`menu-grid${FREE_CORNER ? '' : ' needs-room'}`} style={{ '--cols': COLS, '--rows': ROWS }}>
             {videos.map((v, i) => (
