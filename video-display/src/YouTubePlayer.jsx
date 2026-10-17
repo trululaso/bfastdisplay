@@ -42,10 +42,17 @@ export default function YouTubePlayer({ videoId, start = 0, playKey, muted, paus
   }
 
   // Always start muted (the only autoplay browsers guarantee), then unmute if wanted.
+  // While paused, the video is only cued: it waits on its first frame for play.
   const load = (p) => {
-    const { videoId, start, muted } = wanted.current
+    const { videoId, start, muted, paused } = wanted.current
     started.current = false
     clearTimeout(soundCheck.current)
+    if (paused) {
+      p.cueVideoById({ videoId, startSeconds: start })
+      if (muted) p.mute()
+      else p.unMute()
+      return
+    }
     p.mute()
     p.loadVideoById({ videoId, startSeconds: start })
     if (!muted) {

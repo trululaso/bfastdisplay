@@ -14,6 +14,9 @@ const START_MUTED = params.has('sound') ? params.get('sound') === '0' : settings
 
 const STALL_LIMIT_MS = 25_000 // skip a video that hasn't moved for this long
 const OFFLINE_RETRY_MS = 30_000
+// After a jump YouTube shows its own pause button in the middle of the video until
+// ~4 s after playback moves again; the seek bubble covers it for that long.
+const SEEK_COVER_MS = 4600
 
 function makeOrder(avoidFirst) {
   const order = videos.map((_, i) => i)
@@ -27,17 +30,18 @@ function makeOrder(avoidFirst) {
   return order
 }
 
+// Switching video keeps the pause: a paused display loads the next video paused.
 function reducer(state, action) {
   switch (action.type) {
     case 'step': {
       const n = videos.length
       const raw = state.pos + action.step
       const order = raw >= n && settings.shuffle ? makeOrder(state.order[n - 1]) : state.order
-      return { order, pos: ((raw % n) + n) % n, key: state.key + 1, playing: false, paused: false, time: 0, duration: 0 }
+      return { order, pos: ((raw % n) + n) % n, key: state.key + 1, playing: false, paused: state.paused, time: 0, duration: 0 }
     }
     case 'select': {
       const pos = state.order.indexOf(action.index)
-      return { ...state, pos, key: state.key + 1, playing: false, paused: false, time: 0, duration: 0 }
+      return { ...state, pos, key: state.key + 1, playing: false, time: 0, duration: 0 }
     }
     case 'pause':
       return { ...state, paused: action.paused }
@@ -76,6 +80,9 @@ export default function Display({ videoId }) {
   const [leftFullscreen, setLeftFullscreen] = useState(false) // plays the "turn back" animation
   const [offline, setOffline] = useState(false)
   const [seek, setSeek] = useState(null)
+  const [seekBubble, setSeekBubble] = useState(false)
+  const seekBubbleOn = useRef(false)
+  const seekBubbleTimer = useRef()
 
   const { order, pos, key, playing, paused, time } = state
   const video = videos[order[pos]]
@@ -120,6 +127,16 @@ export default function Display({ videoId }) {
     lastTime.current = -1
   }, [key])
 
+  // Show the seek bubble for `ms`, or hide it (0).
+  const coverSeek = useCallback((ms) => {
+    clearTimeout(seekBubbleTimer.current)
+    seekBubbleOn.current = ms > 0
+    setSeekBubble(ms > 0)
+    if (ms > 0) seekBubbleTimer.current = setTimeout(() => coverSeek(0), ms)
+  }, [])
+
+  useEffect(() => () => coverSeek(0), [key, coverSeek])
+
   const handleFail = useCallback(
     (fatal, reason) => {
       console.warn('Video failed:', reason)
@@ -137,7 +154,9 @@ export default function Display({ videoId }) {
   const handlePlaying = useCallback(() => {
     failures.current = 0
     dispatch({ type: 'playing' })
-  }, [])
+    // Playback moved again after a jump: YouTube's button stays a few more seconds.
+    if (seekBubbleOn.current) coverSeek(SEEK_COVER_MS)
+  }, [coverSeek])
 
   const handleAutoMuted = useCallback(() => setMuted(true), [])
 
@@ -159,8 +178,9 @@ export default function Display({ videoId }) {
       const t = f * duration
       setSeek({ time: t })
       dispatch({ type: 'progress', time: t, duration: state.duration })
+      if (!pausedRef.current) coverSeek(SEEK_COVER_MS)
     },
-    [duration, state.duration],
+    [duration, state.duration, coverSeek],
   )
 
   const toggleVideoFullscreen = useCallback(() => {
@@ -265,6 +285,9 @@ export default function Display({ videoId }) {
                 onAutoMuted={handleAutoMuted}
               />
               <Thumb key={key} id={video.youtubeId} hd className={`poster${playing ? ' is-hidden' : ''}`} />
+              <div className={`seek-bubble${seekBubble ? ' is-visible' : ''}`} aria-hidden>
+                {formatTime(Math.min(time, duration || time))}
+              </div>
               <PlayerControls
                 paused={paused}
                 muted={muted}
