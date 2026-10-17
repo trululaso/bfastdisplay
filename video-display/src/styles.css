@@ -808,8 +808,22 @@ body.hide-cursor * {
   margin-top: 36px;
 }
 
-.menu-grid.needs-room {
-  margin-bottom: 128px; /* the Loop button sits below the last row */
+.screen.menu .loop-button {
+  position: static;
+  align-self: flex-end;
+  margin-top: 28px;
+}
+
+/* Empty corner of the last row: the Loop button sits at its bottom-right. */
+.menu-grid .menu-loop-cell {
+  grid-column: -2;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+.screen.menu .banner {
+  margin-top: 36px;
 }
 
 .menu-grid li {
