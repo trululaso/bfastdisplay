@@ -2,9 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 
 const HIDE_AFTER_MS = 4000
 
-// Touch controls over the video. A tap shows ⏮ ⏯ ⏭ for a few seconds (they stay
-// while paused; ⏮ ⏭ only when onPrev/onNext are given); the full-screen and
-// sound buttons are always visible.
+// Touch controls over the video. A tap shows ⏮ ⏯ ⏭ for a few seconds (⏮ ⏭ only
+// when onPrev/onNext are given), then they fade out, also while paused, so a paused
+// frame can be shown at an exhibition without the controls in the way. The
+// full-screen and sound buttons are always visible.
 export default function PlayerControls({ paused, muted, fullscreen, onTogglePause, onToggleMute, onToggleFullscreen, onPrev, onNext }) {
   const [visible, setVisible] = useState(false)
   const hideTimer = useRef()
@@ -35,7 +36,7 @@ export default function PlayerControls({ paused, muted, fullscreen, onTogglePaus
   }
 
   return (
-    <div className={`controls${visible || paused ? ' is-visible' : ''}`} onClick={onBackground}>
+    <div className={`controls${visible ? ' is-visible' : ''}`} onClick={onBackground}>
       <div className="controls-center">
         {onPrev && (
           <button type="button" className="ctrl" aria-label="Video anterior" onClick={press(onPrev)}>
