@@ -89,78 +89,18 @@ body.hide-cursor * {
   transition: transform 0.5s linear;
 }
 
-/* ── Header ────────────────────────────────────────────────── */
+/* ── Logo ──────────────────────────────────────────────────── */
 
-.top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-top: 40px;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 22px;
-}
-
-.brand-logo {
-  height: 64px;
+.page-logo {
+  align-self: flex-start;
+  height: 120px;
   width: auto;
 }
 
-.brand-event {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  font-size: 30px;
-  font-weight: 700;
-  font-stretch: 118%;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.brand-event::before {
-  content: '';
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 0 0 rgba(255, 138, 31, 0.6);
-  animation: pulse 2.4s ease-out infinite;
-}
-
-@keyframes pulse {
-  70% {
-    box-shadow: 0 0 0 14px rgba(255, 138, 31, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(255, 138, 31, 0);
-  }
-}
-
-.clock {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  line-height: 1;
-}
-
-.clock-time {
-  font-size: 56px;
-  font-weight: 300;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
-}
-
-.clock-date {
-  margin-top: 10px;
-  font-size: 22px;
-  color: var(--ink-2);
-}
-
-.clock-date::first-letter {
-  text-transform: uppercase;
+/* Under the story bars on the loop page. */
+.screen:not(.single) .page-logo {
+  height: 96px;
+  margin-top: 36px;
 }
 
 /* ── Player ────────────────────────────────────────────────── */
@@ -995,11 +935,6 @@ body.hide-cursor * {
   padding: 64px var(--gutter) 48px;
 }
 
-.single-logo {
-  align-self: flex-start;
-  height: 120px;
-  width: auto;
-}
 
 .screen.single .player-slot {
   margin-top: auto;

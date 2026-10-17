@@ -19,23 +19,6 @@ export function Thumb({ id, hd = false, className }) {
   )
 }
 
-const timeFormat = new Intl.DateTimeFormat('es-CL', { hour: '2-digit', minute: '2-digit', hour12: false })
-const dateFormat = new Intl.DateTimeFormat('es-CL', { weekday: 'long', day: 'numeric', month: 'long' })
-
-export function Clock() {
-  const [now, setNow] = useState(() => new Date())
-  useEffect(() => {
-    const timer = setInterval(() => setNow(new Date()), 5000)
-    return () => clearInterval(timer)
-  }, [])
-  return (
-    <div className="clock">
-      <span className="clock-time">{timeFormat.format(now)}</span>
-      <span className="clock-date">{dateFormat.format(now)}</span>
-    </div>
-  )
-}
-
 // One segment per video, like phone "stories".
 export function StoryBars({ count, active, fraction }) {
   return (

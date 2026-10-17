@@ -4,7 +4,7 @@ import { settings, videos } from './config.js'
 import { goToMenu, navigate } from './router.js'
 import Stage from './Stage.jsx'
 import YouTubePlayer from './YouTubePlayer.jsx'
-import { Banner, Clock, Scrubber, StoryBars, Thumb } from './parts.jsx'
+import { Banner, Scrubber, StoryBars, Thumb } from './parts.jsx'
 import PlayerControls from './PlayerControls.jsx'
 import VideoList from './VideoList.jsx'
 
@@ -239,17 +239,7 @@ export default function Display({ videoId }) {
         <main className={`screen${single ? ' single' : ''}`} onClick={() => muted && setMuted(false)}>
           {!single && <StoryBars count={videos.length} active={pos} fraction={fraction} />}
 
-          {single ? (
-            <img className="single-logo" src="/geto.png" alt="GETO" />
-          ) : (
-            <header className="top">
-              <div className="brand">
-                {settings.logo && <img className="brand-logo" src={settings.logo} alt="" />}
-                <span className="brand-event">{settings.eventName}</span>
-              </div>
-              <Clock />
-            </header>
-          )}
+          <img className="page-logo" src="/geto.png" alt="GETO" />
 
           {fullscreen && <div className="fs-backdrop" />}
 
