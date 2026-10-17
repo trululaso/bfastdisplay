@@ -237,41 +237,6 @@ body.hide-cursor * {
   }
 }
 
-/* Where you jumped to, shown right over the pause button YouTube puts in the
-   middle for a few seconds after a jump (it can't be turned off). The blur hides
-   any edge of it. */
-.seek-bubble {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  min-width: 220px;
-  padding: 26px 48px;
-  border-radius: 999px;
-  background: rgba(11, 12, 14, 0.85);
-  backdrop-filter: blur(18px);
-  color: var(--on-video);
-  font-size: 46px;
-  font-weight: 700;
-  line-height: 1;
-  text-align: center;
-  font-variant-numeric: tabular-nums;
-  transform: translate(-50%, -50%);
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  pointer-events: none;
-}
-
-.seek-bubble.is-visible {
-  opacity: 1;
-  transition: opacity 0.12s ease;
-}
-
-.is-fullscreen .seek-bubble {
-  min-width: 280px;
-  padding: 34px 64px;
-  font-size: 60px;
-}
-
 /* Touch controls. The layer also catches taps so they never reach YouTube. */
 .controls {
   position: absolute;
