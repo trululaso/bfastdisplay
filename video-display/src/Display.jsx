@@ -1,12 +1,10 @@
-import { Fragment, useCallback, useEffect, useReducer, useRef, useState } from 'react'
-import { QRCodeSVG } from 'qrcode.react'
+import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import { settings, videos } from './config.js'
 import { goToMenu, navigate } from './router.js'
 import Stage from './Stage.jsx'
 import YouTubePlayer from './YouTubePlayer.jsx'
-import { Banner, Scrubber, StoryBars, Thumb } from './parts.jsx'
+import { Banner, Scrubber, Thumb } from './parts.jsx'
 import PlayerControls from './PlayerControls.jsx'
-import VideoList from './VideoList.jsx'
 
 const params = new URLSearchParams(window.location.search)
 const ROTATE = Number(params.get('rotate')) || 0
@@ -56,9 +54,10 @@ const formatTime = (s) => `${Math.floor(s / 60)}:${pad(Math.floor(s % 60))}`
 
 const indexOf = (youtubeId) => videos.findIndex((v) => v.youtubeId === youtubeId)
 
-// Without `videoId`: the /loop display, which plays every video one after another.
-// With `videoId`: only that video (from the menu) with its title, the GETO logo,
-// the bFast banner and a Volver button; it returns to the menu when it ends.
+// Both pages look the same: the video with its title, the GETO logo, the bFast banner
+// and a Volver button. Without `videoId`: the /loop display, which plays every video
+// one after another. With `videoId`: only that video (from the menu); it returns to
+// the menu when it ends.
 export default function Display({ videoId }) {
   const single = videoId != null
   const [state, dispatch] = useReducer(reducer, null, () => ({
@@ -220,10 +219,9 @@ export default function Display({ videoId }) {
     return () => window.removeEventListener('keydown', onKey)
   }, [single, step, togglePause, toggleMute, toggleVideoFullscreen])
 
-  const titleWords = video.title.split(' ')
   const fsRotation = settings.fullscreenRotation || 0
 
-  // Time bar under the video (both pages); tap or drag to jump.
+  // Time bar under the title; tap or drag to jump.
   const progress = (
     <div className="progress">
       <Scrubber fraction={fraction} disabled={!duration} rotate={ROTATE} onSeek={handleSeek} />
@@ -237,9 +235,7 @@ export default function Display({ videoId }) {
     <>
       <Stage width={1080} height={1920} rotate={ROTATE}>
         {/* Any tap turns the sound on (browsers need one interaction for that). */}
-        <main className={`screen${single ? ' single' : ''}`} onClick={() => muted && setMuted(false)}>
-          {!single && <StoryBars count={videos.length} active={pos} fraction={fraction} />}
-
+        <main className="screen single" onClick={() => muted && setMuted(false)}>
           {/* The logo also takes you back to the menu. */}
           <button type="button" className="page-logo-button" aria-label="Volver al menú" onClick={goToMenu}>
             <img className="page-logo" src="/geto.png" alt="GETO" />
@@ -282,71 +278,19 @@ export default function Display({ videoId }) {
             </section>
           </div>
 
-          {single && (
-            <>
-              <div className="title-band" key={key}>
-                <strong>{video.title}</strong>
-                {video.subtitle && <span>{video.subtitle}</span>}
-              </div>
+          <div className="title-band" key={key}>
+            <strong>{video.title}</strong>
+            {video.subtitle && <span>{video.subtitle}</span>}
+          </div>
 
-              {progress}
+          {progress}
 
-              <div className="single-bottom">
-                <button type="button" className="back-button" onClick={goToMenu}>
-                  Volver
-                </button>
-                <Banner />
-              </div>
-            </>
-          )}
-
-          {!single && (
-            <>
-              {progress}
-
-              <section className="now" key={key}>
-                {settings.showQr && (
-                  <div className="qr">
-                    <QRCodeSVG value={`https://youtu.be/${video.youtubeId}`} size={104} marginSize={0} fgColor="#0b0c0e" />
-                    <span>Escanéame</span>
-                  </div>
-                )}
-                <div className="now-meta">
-                  <span className="now-count">
-                    {pad(pos + 1)}
-                    <span>/{pad(videos.length)}</span>
-                  </span>
-                  {video.tag && <span className="tag">{video.tag}</span>}
-                </div>
-                <h1 className={`now-title${video.title.length > 34 ? ' is-long' : ''}`}>
-                  {titleWords.map((word, i) => (
-                    <Fragment key={i}>
-                      <span className="word">
-                        <span style={{ '--i': i }}>{word}</span>
-                      </span>{' '}
-                    </Fragment>
-                  ))}
-                </h1>
-                {video.subtitle && <p className="now-subtitle">{video.subtitle}</p>}
-              </section>
-
-              {/* The list scrolls behind the Menú button; the banner runs along the bottom. */}
-              <div className="library-area">
-                <VideoList videos={videos} currentIndex={order[pos]} fraction={fraction} onSelect={select} />
-                <button type="button" className="loop-button" onClick={goToMenu}>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                    <rect x="3" y="3" width="7" height="7" rx="1.5" />
-                    <rect x="14" y="3" width="7" height="7" rx="1.5" />
-                    <rect x="3" y="14" width="7" height="7" rx="1.5" />
-                    <rect x="14" y="14" width="7" height="7" rx="1.5" />
-                  </svg>
-                  Menú
-                </button>
-              </div>
-              <Banner />
-            </>
-          )}
-
+          <div className="single-bottom">
+            <button type="button" className="back-button" onClick={goToMenu}>
+              Volver
+            </button>
+            <Banner />
+          </div>
 
           {offline && (
             <div className="offline">
