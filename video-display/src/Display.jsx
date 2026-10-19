@@ -263,6 +263,7 @@ export default function Display({ videoId }) {
               />
               <Thumb key={key} id={video.youtubeId} hd className={`poster${playing ? ' is-hidden' : ''}`} />
               <PlayerControls
+                playKey={key}
                 paused={paused}
                 muted={muted}
                 onTogglePause={togglePause}

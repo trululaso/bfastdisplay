@@ -1,22 +1,48 @@
 import { useEffect, useRef, useState } from 'react'
 
 const HIDE_AFTER_MS = 4000
+const CORNER_HIDE_AFTER_MS = 2000
 
 // Touch controls over the video. A tap shows ⏮ ⏯ ⏭ for a few seconds (⏮ ⏭ only
 // when onPrev/onNext are given), then they fade out, also while paused, so a paused
 // frame can be shown at an exhibition without the controls in the way. The
-// full-screen and sound buttons are always visible.
-export default function PlayerControls({ paused, muted, fullscreen, onTogglePause, onToggleMute, onToggleFullscreen, onPrev, onNext }) {
+// full-screen and sound buttons show for 2 seconds when a video starts (`playKey`)
+// and on every tap.
+export default function PlayerControls({ playKey, paused, muted, fullscreen, onTogglePause, onToggleMute, onToggleFullscreen, onPrev, onNext }) {
   const [visible, setVisible] = useState(false)
+  const [cornerVisible, setCornerVisible] = useState(true)
   const hideTimer = useRef()
+  const cornerTimer = useRef()
+
+  const showCorner = () => {
+    setCornerVisible(true)
+    clearTimeout(cornerTimer.current)
+    cornerTimer.current = setTimeout(() => setCornerVisible(false), CORNER_HIDE_AFTER_MS)
+  }
 
   const show = () => {
     setVisible(true)
     clearTimeout(hideTimer.current)
     hideTimer.current = setTimeout(() => setVisible(false), HIDE_AFTER_MS)
+    showCorner()
   }
 
-  useEffect(() => () => clearTimeout(hideTimer.current), [])
+  const hide = () => {
+    clearTimeout(hideTimer.current)
+    clearTimeout(cornerTimer.current)
+    setVisible(false)
+    setCornerVisible(false)
+  }
+
+  useEffect(showCorner, [playKey])
+
+  useEffect(
+    () => () => {
+      clearTimeout(hideTimer.current)
+      clearTimeout(cornerTimer.current)
+    },
+    [],
+  )
 
   // Each button keeps the controls up and doesn't count as a tap on the background.
   const press = (action) => (e) => {
@@ -27,12 +53,8 @@ export default function PlayerControls({ paused, muted, fullscreen, onTogglePaus
 
   const onBackground = (e) => {
     e.stopPropagation()
-    if (visible) {
-      clearTimeout(hideTimer.current)
-      setVisible(false)
-    } else {
-      show()
-    }
+    if (visible) hide()
+    else show()
   }
 
   return (
@@ -52,7 +74,7 @@ export default function PlayerControls({ paused, muted, fullscreen, onTogglePaus
           </button>
         )}
       </div>
-      <div className="controls-corner">
+      <div className={`controls-corner${cornerVisible ? ' is-visible' : ''}`}>
         <button
           type="button"
           className="ctrl ctrl-corner"

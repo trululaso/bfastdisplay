@@ -311,13 +311,21 @@ body.hide-cursor * {
   height: 60px;
 }
 
-/* Full-screen and sound buttons: always there, bottom-right corner. */
+/* Full-screen and sound buttons, bottom-right corner: up for 2s after a tap. */
 .controls-corner {
   position: absolute;
   right: 22px;
   bottom: 22px;
   display: flex;
   gap: 14px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.controls-corner.is-visible {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .ctrl-corner {
